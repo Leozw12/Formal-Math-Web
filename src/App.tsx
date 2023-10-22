@@ -1,34 +1,47 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import MonacoEditor from 'react-monaco-editor';
+import 'monaco-editor/min/vs/editor/editor.main.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [code, setCode] = useState<string>('');
+
+  const handleChange = (newValue: string) => {
+    setCode(newValue);
+  };
+
+  const options = {
+    selectOnLineNumbers: true,
+    roundedSelection: false,
+    readOnly: false,
+    language: "lean", 
+    glyphMargin: false,   
+    lineDecorationsWidth: 0,  
+    minimap: {
+      enabled: false
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className='app'>
+      <div className='left'>
+        <h2>Editor</h2>
+        <MonacoEditor
+          className="lean-monaco-editor"
+          language="lean"
+          height="92%"
+          value={code}
+          options={options}
+          onChange={handleChange}
+        />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div className='right'>
+      <h2>Output</h2>
+        <div className="output-area">
+          {/* 在此处显示代码的输出或其他信息 */}
+        </div>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
 }
 
