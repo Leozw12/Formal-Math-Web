@@ -8,6 +8,13 @@
   display: flex;
 }
 
+.title{
+  height: 5vh;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5vh;
+}
+
 .left{
   width: 69%;
   padding: 0.5vw;
@@ -18,12 +25,19 @@
   flex-direction: column;
 }
 
-.lean-monaco-editor {
-  /* border: 1px solid #e0e0e0; */
-  /* border-radius: 5px;s */
-  height: 97vh;
-  overflow: hidden;
-  padding: 1vw 0;
+.editor-area{
+  height: 90vh;
+}
+
+.operating-area{
+  display: flex;
+  justify-content: end;
+}
+
+button{
+  height: 1.5vw;
+  width: 4vw;
+  margin: 5px;
 }
 
 .right{
@@ -33,7 +47,6 @@
 }
 
 .output-area {
-  margin-top: 1vw;
   border: 1px solid #e0e0e0;
   border-radius: 5px;
   padding: 10px;

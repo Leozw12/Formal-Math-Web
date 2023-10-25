@@ -11,15 +11,19 @@ app.add_middleware(CORSMiddleware,
                    allow_headers=["*"])
 
 
+def clean_output(text: str) -> str:
+    return text.replace("<stdin>:", "")
+
 @app.post('/run')
 def run_lean(data: dict = Body(...)):
     lean_process = subprocess.Popen(['lean', '--stdin'],
                                     stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = lean_process.communicate(data['lean_code'].encode('utf-8'))
     lean_process.wait()
+
     return {
         'code': lean_process.returncode,
-        'data': stdout.decode('utf-8').strip()
+        'data': clean_output(stdout.decode('utf-8').strip())
     }
 
 
