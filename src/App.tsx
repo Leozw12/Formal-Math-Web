@@ -1,37 +1,60 @@
-import { useState } from 'react'
+import {useState} from 'react'
 import './App.css'
-import MonacoEditor from 'react-monaco-editor';
-import 'monaco-editor/min/vs/editor/editor.main.css';
 
-import { run as runCode } from "./utils/api"
-import { ExecuteResult } from './types/base';
+import MonacoEditor from 'react-monaco-editor'
+import 'monaco-editor/min/vs/editor/editor.main.css'
+
+import {Button, Alert} from 'antd'
+import {CaretRightOutlined, ReloadOutlined} from '@ant-design/icons'
+
+import {run as runCode} from './utils/api'
+import {ExecuteResult} from './types/base'
 
 function extractPatterns(s: string) {
-  const regex = /(\d+):(\d+): (error:)([^1-9]*)/g;
-  const matches = [];
-  let match;
+  const regex = /(\d+):(\d+): (error:)([^1-9]*)/g
+  const matches = []
+  let match
 
   while ((match = regex.exec(s)) !== null) {
-      matches.push({
-          location: {
-              line: match[1],
-              char: match[2]
-          },
-          errorType: match[3].slice(0, -1),
-          message: match[4].trim()
-      });
+    matches.push({
+      location: {
+        line: match[1],
+        char: match[2]
+      },
+      errorType: match[3].slice(0, -1),
+      message: match[4].trim()
+    })
   }
 
-  return matches;
+  return matches
+}
+
+// 输出组件
+function Output({result}) {
+  if(result.code == 0){
+    return <Alert type="info" message="info" description={result.data} showIcon></Alert>
+  }else if(result != '') {
+    return extractPatterns(result.data).map((item) => (
+          <Alert
+            type="error"
+            message={`${item.errorType} ${item.location.line}:${item.location.char}`}
+            description={item.message}
+            showIcon
+          ></Alert>
+        ))
+  }
 }
 
 function App() {
-  const [code, setCode] = useState<string>('');
-  const [executeResult, setExecuteResult] = useState<ExecuteResult>({data: "", code: 1});
+  const [code, setCode] = useState<string>('#eval Lean.versionString')
+  const [executeResult, setExecuteResult] = useState<ExecuteResult>({
+    code: 1,
+    data: ''
+  })
 
   const handleChange = (newValue: string) => {
-    setCode(newValue);
-  };
+    setCode(newValue)
+  }
 
   const options = {
     selectOnLineNumbers: true,
@@ -42,24 +65,39 @@ function App() {
     minimap: {
       enabled: false
     }
-  };
+  }
 
   const run = async () => {
-    const result = await runCode(code);
-    console.log(result);
-    setExecuteResult(result)
-    console.log(extractPatterns(result.data));
+    if(code.trim() != ''){
+      const result = await runCode(code)
+      // console.log(result)
+      setExecuteResult(result)
+      // console.log(extractPatterns(result.data))
+    }
+    
   }
 
   const clear = () => {
-    setCode("")
+    setCode('')
+    setExecuteResult({code: 1, data: ''})
   }
 
   return (
-    <div className='app'>
-      <div className='left'>
-        <h2 className='title'>Editor</h2>
-        <div className='editor-area'>
+    <div className="app">
+      <div className="left">
+        <h2 className="title">
+          Editor
+          <div className="operating-area">
+            <Button onClick={clear} icon={<ReloadOutlined />}></Button>
+            <Button
+              onClick={run}
+              icon={<CaretRightOutlined style={{color: '#2EAA33'}} />}
+            >
+              Execute
+            </Button>
+          </div>
+        </h2>
+        <div className="editor-area">
           <MonacoEditor
             className="lean-monaco-editor"
             language="lean"
@@ -69,15 +107,12 @@ function App() {
             onChange={handleChange}
           />
         </div>
-        <div className='operating-area'>
-          <button onClick={clear}>Clear</button>
-          <button onClick={run}>Execute</button>
-        </div>
       </div>
-      <div className='right'>
-        <h2 className='title'>Output</h2>
+      <div className="right">
+        <h2 className="title">Output</h2>
         <div className="output-area">
           {/* 在此处显示代码的输出或其他信息 */}
+          <Output result={executeResult} />
         </div>
       </div>
     </div>
